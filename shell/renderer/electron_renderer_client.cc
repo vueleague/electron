@@ -156,11 +156,12 @@ void ElectronRendererClient::WillReleaseScriptContext(
   // for existing users.
   // We also do this if we have disable electron site instance overrides to
   // avoid memory leaks
-  auto prefs = render_frame->GetBlinkPreferences();
   gin_helper::MicrotasksScope microtasks_scope(env->isolate());
   node::FreeEnvironment(env);
-  if (env == node_bindings_->uv_env())
+  if (node_bindings_->uv_env() == nullptr) {
     node::FreeIsolateData(node_bindings_->isolate_data());
+    node_bindings_->set_isolate_data(nullptr);
+  }
 
   // ElectronBindings is tracking node environments.
   electron_bindings_->EnvironmentDestroyed(env);
